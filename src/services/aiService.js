@@ -15,20 +15,40 @@ The response must follow this exact format:
   "rules": [
     {
       "condition": string (one of: 'totalSpent', 'visits', 'lastVisit'),
-      "operator": string (one of: 'gt', 'lt', 'eq'),
-      "value": number
+      "operator": string (one of: 'gt', 'lt', 'eq', 'between'),
+      "value": number,
+      "value2": number (required only when operator is 'between'),
+      "conjunction": string (one of: 'AND', 'OR', optional for first rule)
     }
   ]
 }
 
-Example:
-Input: "Customers who spent more than 10000 and visited less than 3 times"
+Examples:
+1. Input: "Customers who spent more than ₹10,000 and visited less than 3 times"
 Output: {
   "rules": [
     {"condition":"totalSpent","operator":"gt","value":10000},
-    {"condition":"visits","operator":"lt","value":3}
+    {"condition":"visits","operator":"lt","value":3,"conjunction":"AND"}
   ]
-}`;
+}
+
+2. Input: "Customers who spent between ₹5,000 and ₹10,000 or visited more than 5 times"
+Output: {
+  "rules": [
+    {"condition":"totalSpent","operator":"between","value":5000,"value2":10000},
+    {"condition":"visits","operator":"gt","value":5,"conjunction":"OR"}
+  ]
+}
+
+3. Input: "Customers who haven't visited in the last 30 days and spent between ₹1,000 and ₹5,000"
+Output: {
+  "rules": [
+    {"condition":"lastVisit","operator":"gt","value":30},
+    {"condition":"totalSpent","operator":"between","value":1000,"value2":5000,"conjunction":"AND"}
+  ]
+}
+
+Note: The system will automatically handle the currency symbol (₹) and number formatting. You should only return the numeric values without the currency symbol in the JSON response.`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
@@ -52,18 +72,32 @@ Output: {
 
       const rules = parsedResponse.rules;
 
-      rules.forEach(rule => {
+      rules.forEach((rule, index) => {
         if (!rule.condition || !rule.operator || rule.value === undefined) {
           throw new Error("Invalid rule structure");
         }
         if (!['totalSpent', 'visits', 'lastVisit'].includes(rule.condition)) {
           throw new Error(`Invalid condition: ${rule.condition}`);
         }
-        if (!['gt', 'lt', 'eq'].includes(rule.operator)) {
+        if (!['gt', 'lt', 'eq', 'between'].includes(rule.operator)) {
           throw new Error(`Invalid operator: ${rule.operator}`);
         }
         if (typeof rule.value !== 'number') {
           throw new Error("Value must be a number");
+        }
+        if (rule.operator === 'between') {
+          if (typeof rule.value2 !== 'number') {
+            throw new Error("value2 is required for between operator and must be a number");
+          }
+          if (rule.value > rule.value2) {
+            // Swap values if they're in wrong order
+            const temp = rule.value;
+            rule.value = rule.value2;
+            rule.value2 = temp;
+          }
+        }
+        if (index > 0 && !['AND', 'OR'].includes(rule.conjunction)) {
+          throw new Error(`Invalid conjunction for rule ${index + 1}: ${rule.conjunction}`);
         }
       });
 

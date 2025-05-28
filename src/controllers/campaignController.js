@@ -90,23 +90,45 @@ async function calculateAudienceSize(rules) {
   if (!rules || rules.length === 0) return 0;
 
   // Build MongoDB query from rules
-  const query = rules.reduce((acc, rule) => {
-    const { condition, operator, value } = rule;
+  const query = { $and: [] };
+
+  for (const rule of rules) {
+    const { condition, operator, value, value2, conjunction } = rule;
+    let conditionQuery = {};
     
     switch (operator) {
       case 'gt':
-        acc[condition] = { $gt: value };
+        conditionQuery[condition] = { $gt: Number(value) };
         break;
       case 'lt':
-        acc[condition] = { $lt: value };
+        conditionQuery[condition] = { $lt: Number(value) };
         break;
       case 'eq':
-        acc[condition] = value;
+        conditionQuery[condition] = Number(value);
+        break;
+      case 'between':
+        conditionQuery[condition] = { 
+          $gte: Number(value), 
+          $lte: Number(value2) 
+        };
         break;
     }
     
-    return acc;
-  }, {});
+    // Handle AND/OR logic
+    if (conjunction === 'OR' && query.$and.length > 0) {
+      // Convert the existing $and to an $or with the new condition
+      const existingConditions = query.$and;
+      query.$or = [{ $and: existingConditions }, conditionQuery];
+      query.$and = [];
+    } else {
+      query.$and.push(conditionQuery);
+    }
+  }
+
+  // If no AND conditions were added, remove the empty $and
+  if (query.$and.length === 0) {
+    delete query.$and;
+  }
 
   return await Customer.countDocuments(query);
 }
