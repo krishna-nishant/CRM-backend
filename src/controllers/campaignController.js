@@ -1,5 +1,6 @@
 const Campaign = require('../models/Campaign');
 const Customer = require('../models/Customer');
+const { convertNaturalLanguageToRules } = require('../services/aiService');
 
 // Create a new campaign
 exports.createCampaign = async (req, res) => {
@@ -53,6 +54,29 @@ exports.previewAudience = async (req, res) => {
     const audienceSize = await calculateAudienceSize(rules);
     
     res.json({
+      audienceSize,
+      estimatedDeliveryTime: calculateEstimatedDeliveryTime(audienceSize)
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Convert natural language to campaign rules
+exports.convertNaturalLanguageRules = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    const rules = await convertNaturalLanguageToRules(prompt);
+    
+    const audienceSize = await calculateAudienceSize(rules);
+    
+    res.json({
+      rules,
       audienceSize,
       estimatedDeliveryTime: calculateEstimatedDeliveryTime(audienceSize)
     });
