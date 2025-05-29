@@ -6,6 +6,8 @@ const connectDB = require('./config/db');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const passport = require('./config/passport');
+const cron = require('node-cron');
+const axios = require('axios');
 const campaignRoutes = require('./routes/campaigns');
 const customerRoutes = require('./routes/customers');
 const authRoutes = require('./routes/auth');
@@ -30,6 +32,11 @@ app.use(cors({
 // Initialize Passport and MongoDB
 app.use(passport.initialize());
 connectDB();
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
 
 // Basic route
 app.get('/', (req, res) => {
@@ -59,6 +66,28 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
+
+// Setup cron job to keep server active
+if (process.env.NODE_ENV === 'production') {
+  // Schedule health check every 14 minutes
+  cron.schedule('*/14 * * * *', async () => {
+    try {
+      const healthCheck = await axios.get(`${process.env.BACKEND_URL}/health`);
+      console.log('Health check passed:', healthCheck.data.timestamp);
+    } catch (error) {
+      console.error('Health check failed:', error.message);
+    }
+  });
+}
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
 }); 
