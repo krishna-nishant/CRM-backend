@@ -25,7 +25,7 @@ app.use(cookieParser());
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: [process.env.FRONTEND_URL, 'https://crm-pa87.onrender.com'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -36,12 +36,17 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   swaggerOptions: {
     persistAuthorization: true,
     displayRequestDuration: true,
-    tryItOutEnabled: true
+    tryItOutEnabled: true,
+    defaultModelsExpandDepth: 3,
+    defaultModelExpandDepth: 3,
+    defaultModelRendering: 'model',
+    docExpansion: 'list',
+    showCommonExtensions: true,
+    showExtensions: true
   },
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: "Mini CRM API Documentation",
-  customfavIcon: '/favicon.ico',
-  swaggerUrl: process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api-docs` : undefined
+  customfavIcon: '/favicon.ico'
 }));
 
 // Initialize Passport and MongoDB

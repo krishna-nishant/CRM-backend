@@ -14,12 +14,12 @@ const options = {
     },
     servers: [
       {
-        url: process.env.BACKEND_URL || 'http://localhost:3000',
-        description: 'Production server',
+        url: 'https://crm-pa87.onrender.com',
+        description: 'Production server'
       },
       {
         url: 'http://localhost:3000',
-        description: 'Development server',
+        description: 'Development server'
       }
     ],
     components: {
@@ -28,11 +28,17 @@ const options = {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-        },
-      },
-    }
+          description: 'Enter your JWT token in the format: Bearer <token>'
+        }
+      }
+    },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
   },
-  apis: ['./src/routes/*.js'], // Path to the API routes
+  apis: ['./src/routes/*.js']
 };
 
 const swaggerSpec = swaggerJsdoc(options);
