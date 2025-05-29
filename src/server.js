@@ -9,6 +9,7 @@ const passport = require('./config/passport');
 const campaignRoutes = require('./routes/campaigns');
 const customerRoutes = require('./routes/customers');
 const authRoutes = require('./routes/auth');
+const metricsRoutes = require('./routes/metrics');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/metrics', metricsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

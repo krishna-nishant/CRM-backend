@@ -9,11 +9,22 @@ const ruleSchema = new mongoose.Schema({
   operator: {
     type: String,
     required: true,
-    enum: ['gt', 'lt', 'eq']
+    enum: ['gt', 'lt', 'eq', 'between']
   },
   value: {
     type: Number,
     required: true
+  },
+  value2: {
+    type: Number,
+    required: function() {
+      return this.operator === 'between';
+    }
+  },
+  conjunction: {
+    type: String,
+    enum: ['AND', 'OR'],
+    default: 'AND'
   }
 });
 
