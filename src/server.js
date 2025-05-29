@@ -8,6 +8,8 @@ const cookieParser = require('cookie-parser');
 const passport = require('./config/passport');
 const cron = require('node-cron');
 const axios = require('axios');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const campaignRoutes = require('./routes/campaigns');
 const customerRoutes = require('./routes/customers');
 const authRoutes = require('./routes/auth');
@@ -27,6 +29,19 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Swagger UI setup - no authentication required
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    tryItOutEnabled: true
+  },
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "Mini CRM API Documentation",
+  customfavIcon: '/favicon.ico',
+  swaggerUrl: process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api-docs` : undefined
 }));
 
 // Initialize Passport and MongoDB
