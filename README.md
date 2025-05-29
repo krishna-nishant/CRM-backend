@@ -6,47 +6,65 @@ A scalable Node.js backend for the Mini CRM platform with advanced campaign mana
 
 ```mermaid
 graph TD
-    subgraph Client Layer
-        FE[Frontend App] --> API[API Gateway]
-        Webhook[Webhook] --> API
+    %% Client Layer
+    subgraph ClientLayer["Client Layer"]
+        FE["Frontend App"]
+        Webhook["Webhook"]
+        FE --> API["API Gateway"]
+        Webhook --> API
     end
 
-    subgraph API Layer
-        API --> Auth[Auth Service]
-        API --> Valid[Validator]
+    %% API Layer
+    subgraph APILayer["API Layer"]
+        API --> Auth["Auth Service"]
+        API --> Valid["Validator"]
         
-        subgraph Core Services
-            Campaign[Campaign Service]
-            Customer[Customer Service]
-            Analytics[Analytics Service]
+        subgraph CoreServices["Core Services"]
+            Campaign["Campaign Service"]
+            Customer["Customer Service"]
+            Analytics["Analytics Service"]
         end
         
-        Valid --> Core Services
+        Valid --> CoreServices
     end
 
-    subgraph Processing Layer
-        Campaign --> Queue[Message Queue]
-        Queue --> Consumer[Message Consumer]
-        Consumer --> Batch[Batch Processor]
+    %% Processing Layer
+    subgraph ProcessingLayer["Processing Layer"]
+        Campaign --> Queue["Message Queue"]
+        Queue --> Consumer["Message Consumer"]
+        Consumer --> Batch["Batch Processor"]
         
-        subgraph AI Services
-            NLP[Natural Language Processor]
+        subgraph AIServices["AI Services"]
+            NLP["Natural Language Processor"]
         end
         
-        Campaign --> AI Services
+        Campaign --> AIServices
     end
 
-    subgraph Data Layer
+    %% Data Layer
+    subgraph DataLayer["Data Layer"]
         Batch --> DB[(MongoDB)]
-        Core Services --> DB
+        CoreServices --> DB
     end
 
-    subgraph External Services
-        AI Services --> OpenAI[OpenAI API]
-        Consumer --> Vendor[Vendor API]
-        Vendor --> DR[Delivery Receipt]
-        DR --> Stats[Stats Processor]
+    %% External Services
+    subgraph ExternalServices["External Services"]
+        AIServices --> OpenAI["OpenAI API"]
+        Consumer --> Vendor["Vendor API"]
+        Vendor --> DR["Delivery Receipt"]
+        DR --> Stats["Stats Processor"]
     end
+
+    %% Style definitions
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef service fill:#ddf1d5,stroke:#82b366;
+    classDef database fill:#dae8fc,stroke:#6c8ebf;
+    classDef external fill:#fff2cc,stroke:#d6b656;
+
+    %% Apply styles
+    class DB database;
+    class OpenAI,Vendor external;
+    class Auth,Campaign,Customer,Analytics service;
 ```
 
 ## ✨ Features
