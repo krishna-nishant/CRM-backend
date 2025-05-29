@@ -72,6 +72,9 @@ MONGODB_URI=mongodb://localhost:27017/crm
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 FRONTEND_URL=http://localhost:5173
+BACKEND_URL=http://localhost:3000
+JWT_SECRET=your_jwt_secret_key
+NODE_ENV=development
 ```
 
 3. Start development server:

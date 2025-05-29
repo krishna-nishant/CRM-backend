@@ -14,18 +14,21 @@ const metricsRoutes = require('./routes/metrics');
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL,
-  credentials: true
-}));
-
+app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(morgan('dev'));
-app.use(passport.initialize());
 
-// Connect to MongoDB
+// CORS configuration
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Initialize Passport and MongoDB
+app.use(passport.initialize());
 connectDB();
 
 // Basic route
@@ -41,11 +44,21 @@ app.use('/api/metrics', metricsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something broke!' });
+  const status = err.status || 500;
+  const message = process.env.NODE_ENV === 'production'
+    ? 'An error occurred'
+    : err.message || 'Something broke!';
+
+  if (status === 500) {
+    console.error(err);
+  }
+
+  res.status(status).json({ error: message });
 });
 
 const PORT = process.env.PORT || 3000;
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 }); 

@@ -19,12 +19,21 @@ router.get('/google/callback',
     try {
       const token = generateToken(req.user);
       
+      // Set cookie with appropriate settings for dev/prod
       res.cookie('jwt', token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
       });
+
+      // Log cookie settings in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Cookie settings:', {
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        });
+      }
 
       res.redirect(`${process.env.FRONTEND_URL}/login?success=true`);
     } catch (error) {
@@ -36,10 +45,11 @@ router.get('/google/callback',
 
 // Logout
 router.get('/logout', (req, res) => {
+  // Clear cookie with matching settings
   res.clearCookie('jwt', {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none'
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   });
   res.json({ message: 'Logged out successfully' });
 });

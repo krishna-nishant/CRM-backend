@@ -17,7 +17,7 @@ exports.authenticateToken = (req, res, next) => {
 };
 
 exports.generateToken = (user) => {
-  return jwt.sign(
+  const token = jwt.sign(
     { 
       id: user._id,
       email: user.email,
@@ -27,4 +27,5 @@ exports.generateToken = (user) => {
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
+  return token;
 }; 
