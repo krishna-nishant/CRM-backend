@@ -110,6 +110,72 @@ Note: The system will automatically handle the currency symbol (₹) and number 
   }
 }
 
+async function generateCampaignSuggestions() {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: `You are a CRM campaign expert. Generate 3 unique campaign suggestions in JSON format.
+Return a JSON object with a 'campaigns' array containing objects with these fields:
+{
+  "campaigns": [
+    {
+      "name": "Campaign name",
+      "objective": "Campaign objective",
+      "message": "Message template",
+      "description": "Target audience description",
+      "rules": [
+        {
+          "condition": "string (one of: totalSpent, visits, lastVisit)",
+          "operator": "string (one of: gt, lt, eq, between)",
+          "value": "number",
+          "value2": "number (only for between operator)",
+          "conjunction": "string (AND/OR, optional for first rule)"
+        }
+      ]
+    }
+  ]
+}
+
+Example rule structures:
+1. For "customers who spent more than ₹10,000":
+   { "condition": "totalSpent", "operator": "gt", "value": 10000 }
+   
+2. For "customers who visited between 3 and 5 times":
+   { "condition": "visits", "operator": "between", "value": 3, "value2": 5 }
+   
+3. For "customers who haven't visited in 30 days":
+   { "condition": "lastVisit", "operator": "gt", "value": 30 }
+
+Generate realistic and varied campaign suggestions with practical targeting rules.
+Ensure the response is valid JSON.`
+        },
+        {
+          role: "user",
+          content: "Generate 3 unique campaign suggestions for a CRM system in JSON format, including targeting rules for each campaign"
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 500,
+      response_format: { type: "json_object" }
+    });
+
+    const text = response.choices[0].message.content.trim();
+    const parsedResponse = JSON.parse(text);
+    
+    if (!parsedResponse.campaigns || !Array.isArray(parsedResponse.campaigns)) {
+      throw new Error("Invalid response format");
+    }
+
+    return parsedResponse.campaigns;
+  } catch (error) {
+    throw new Error(`Campaign suggestion error: ${error.message}`);
+  }
+}
+
 module.exports = {
-  convertNaturalLanguageToRules
+  convertNaturalLanguageToRules,
+  generateCampaignSuggestions
 }; 

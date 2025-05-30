@@ -247,6 +247,7 @@ router.get('/:id', campaignController.getCampaign);
 // router.delete('/:id', campaignController.deleteCampaign);
 
 // Campaign utility routes
+router.post('/suggestions', campaignController.getCampaignSuggestions);
 router.post('/preview', campaignController.previewAudience);
 router.post('/natural-language', campaignController.convertNaturalLanguageRules);
 

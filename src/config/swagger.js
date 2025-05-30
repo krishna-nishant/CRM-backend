@@ -43,14 +43,6 @@ const options = {
   apis: [path.join(__dirname, '../routes/*.js')],
 };
 
-// Add debug logging for Swagger configuration
-console.log('Swagger Options:', {
-  host: options.definition.host,
-  basePath: options.definition.basePath,
-  serverUrl: options.definition.servers[0].url,
-  environment: process.env.NODE_ENV
-});
-
 const swaggerSpec = swaggerJsdoc(options);
 
 module.exports = swaggerSpec; 

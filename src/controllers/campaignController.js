@@ -1,6 +1,6 @@
 const Campaign = require('../models/Campaign');
 const Customer = require('../models/Customer');
-const { convertNaturalLanguageToRules } = require('../services/aiService');
+const { convertNaturalLanguageToRules, generateCampaignSuggestions } = require('../services/aiService');
 
 // Create a new campaign
 exports.createCampaign = async (req, res) => {
@@ -80,6 +80,32 @@ exports.convertNaturalLanguageRules = async (req, res) => {
       audienceSize,
       estimatedDeliveryTime: calculateEstimatedDeliveryTime(audienceSize)
     });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get campaign suggestions
+exports.getCampaignSuggestions = async (req, res) => {
+  try {
+    const suggestions = await generateCampaignSuggestions();
+    
+    // For each suggestion, calculate the audience size if it has rules
+    const suggestionsWithStats = await Promise.all(
+      suggestions.map(async (suggestion) => {
+        if (suggestion.rules) {
+          const audienceSize = await calculateAudienceSize(suggestion.rules);
+          return {
+            ...suggestion,
+            audienceSize,
+            estimatedDeliveryTime: calculateEstimatedDeliveryTime(audienceSize)
+          };
+        }
+        return suggestion;
+      })
+    );
+    
+    res.json({ suggestions: suggestionsWithStats });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
