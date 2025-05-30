@@ -1,4 +1,8 @@
 const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
+
+const isProd = process.env.NODE_ENV === 'production';
+const serverUrl = isProd ? 'https://crm-pa87.onrender.com' : 'http://localhost:3000';
 
 const options = {
   definition: {
@@ -14,14 +18,12 @@ const options = {
     },
     servers: [
       {
-        url: 'https://crm-pa87.onrender.com',
-        description: 'Production server'
-      },
-      {
-        url: 'http://localhost:3000',
-        description: 'Development server'
+        url: serverUrl,
+        description: isProd ? 'Production server' : 'Development server'
       }
     ],
+    basePath: '/api',
+    host: isProd ? 'crm-pa87.onrender.com' : 'localhost:3000',
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -38,8 +40,16 @@ const options = {
       }
     ]
   },
-  apis: ['./src/routes/*.js']
+  apis: [path.join(__dirname, '../routes/*.js')],
 };
+
+// Add debug logging for Swagger configuration
+console.log('Swagger Options:', {
+  host: options.definition.host,
+  basePath: options.definition.basePath,
+  serverUrl: options.definition.servers[0].url,
+  environment: process.env.NODE_ENV
+});
 
 const swaggerSpec = swaggerJsdoc(options);
 

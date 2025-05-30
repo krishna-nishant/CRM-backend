@@ -13,6 +13,9 @@ const { authenticateToken } = require('../middleware/auth');
  *         - name
  *         - email
  *       properties:
+ *         _id:
+ *           type: string
+ *           description: Auto-generated MongoDB ID
  *         name:
  *           type: string
  *           description: Customer's full name
@@ -32,11 +35,6 @@ const { authenticateToken } = require('../middleware/auth');
  *           type: string
  *           format: date-time
  *           description: Date of last visit
- *         tags:
- *           type: array
- *           items:
- *             type: string
- *           description: Customer tags
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -48,9 +46,9 @@ const { authenticateToken } = require('../middleware/auth');
  * /api/customers:
  *   get:
  *     summary: Get all customers with pagination
+ *     tags: [Customers]
  *     security:
  *       - bearerAuth: []
- *     tags: [Customers]
  *     parameters:
  *       - in: query
  *         name: page
@@ -89,9 +87,9 @@ const { authenticateToken } = require('../middleware/auth');
  *                       type: integer
  *   post:
  *     summary: Create a new customer
+ *     tags: [Customers]
  *     security:
  *       - bearerAuth: []
- *     tags: [Customers]
  *     requestBody:
  *       required: true
  *       content:
@@ -106,7 +104,7 @@ const { authenticateToken } = require('../middleware/auth');
  *             schema:
  *               $ref: '#/components/schemas/Customer'
  *       400:
- *         description: Customer with this email already exists
+ *         description: Invalid input or email already exists
  */
 
 /**
@@ -114,15 +112,15 @@ const { authenticateToken } = require('../middleware/auth');
  * /api/customers/{id}:
  *   get:
  *     summary: Get customer by ID
+ *     tags: [Customers]
  *     security:
  *       - bearerAuth: []
- *     tags: [Customers]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
  *         description: Customer ID
  *     responses:
  *       200:
@@ -135,15 +133,15 @@ const { authenticateToken } = require('../middleware/auth');
  *         description: Customer not found
  *   put:
  *     summary: Update customer
+ *     tags: [Customers]
  *     security:
  *       - bearerAuth: []
- *     tags: [Customers]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
  *         description: Customer ID
  *     requestBody:
  *       required: true
@@ -162,15 +160,15 @@ const { authenticateToken } = require('../middleware/auth');
  *         description: Customer not found
  *   delete:
  *     summary: Delete customer
+ *     tags: [Customers]
  *     security:
  *       - bearerAuth: []
- *     tags: [Customers]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
  *         description: Customer ID
  *     responses:
  *       200:

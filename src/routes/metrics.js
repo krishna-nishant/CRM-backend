@@ -41,9 +41,9 @@ const { authenticateToken } = require('../middleware/auth');
  * /api/metrics:
  *   get:
  *     summary: Get CRM metrics and analytics
+ *     tags: [Metrics]
  *     security:
  *       - bearerAuth: []
- *     tags: [Metrics]
  *     responses:
  *       200:
  *         description: Dashboard metrics and analytics data
@@ -51,6 +51,8 @@ const { authenticateToken } = require('../middleware/auth');
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Metrics'
+ *       401:
+ *         description: Not authenticated
  *       500:
  *         description: Failed to fetch metrics
  */
