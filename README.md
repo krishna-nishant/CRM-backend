@@ -90,6 +90,11 @@ graph TD
 
 ### 4. AI Integration
 - OpenAI API integration for natural language rule processing
+- AI-powered campaign suggestions with:
+  - Campaign name generation
+  - Message template suggestions
+  - Target audience recommendations
+  - Automatic rule generation
 
 ## 🛠️ Tech Stack
 
